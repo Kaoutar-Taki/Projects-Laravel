@@ -1,65 +1,16 @@
 <?php
 
+use App\Http\Controllers\JobController;
 use Illuminate\Support\Facades\Route;
-use App\Models\Job;
 
-Route::get('/', function () {
-    return view('home');
-});
-// index
-Route::get('/jobs', function () {
-    $jobs = Job::with('employer')->latest()->simplePaginate(5);
-    return view('jobs.index', [
-        'jobs' => $jobs
-    ]);
-});
-// create
-Route::get('/jobs/create', function () {
-    return view('jobs.create');
-});
-// show
-Route::get('/jobs/{job}', function (Job $job) {
-    return view('jobs.show', ['job' => $job]);
-});
-// store
-Route::post('/jobs', function () {
-    request()->validate([
-        'title' => ['required', 'min:3'],
-        'salary' => ['required']
-    ]);
+Route::view('/', 'home');
 
-    Job::create([
-        'title' => request('title'),
-        'salary' => request('salary'),
-        'employer_id' => 1 // replace with actual employer id
-    ]);
-    return redirect('/jobs');
-});
-//Edit
-Route::get('/jobs/{job}/edit', function (Job $job) {
-    return view('jobs.edit', ['job' => $job]);
-});
-// Update
-Route::patch('/jobs/{job}', function (Job $job) {
-    request()->validate([
-        'title' => ['required', 'min:3'],
-        'salary' => ['required']
-    ]);
-    $job->title = request('title');
-    $job->salary = request('salary');
-    $job->save();
-    $job->update([
-        'title' => request('title'),
-        'salary' => request('salary'),
-    ]);
-    return redirect('/jobs/' . $job->id);
-});
-// Destroy
-Route::delete('/jobs/{job}', function (Job $job) {
-    $job->delete();
-    return redirect('/jobs');
-});
+Route::get('/jobs', [JobController::class, 'index']);
+Route::get('/jobs/create', [JobController::class, 'create']);
+Route::get('/jobs/{job}', [JobController::class, 'show']);
+Route::post('/jobs', [JobController::class, 'store']);
+Route::get('/jobs/{job}/edit', [JobController::class, 'edit']);
+Route::patch('/jobs/{job}', [JobController::class, 'update']);
+Route::delete('/jobs/{job}', [JobController::class, 'destroy']);
 
-Route::get('/contact', function () {
-    return view('contact');
-});
+Route::view('/contact', 'contact');
